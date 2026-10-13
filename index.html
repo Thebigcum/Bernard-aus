@@ -159,7 +159,9 @@ form {
   <main id="messages" aria-live="polite"></main>
 
   <form id="bottom">
-    <input id="input" type="text" placeholder="Message Bernard..." autocomplete="off" required>
+    <input id="input" type="text"
+      placeholder="Message Bernard..."
+      autocomplete="off" required>
     <button id="send" type="submit">Send</button>
   </form>
   <div class="note">Private browser AI · Your chats are saved in this browser</div>
@@ -214,11 +216,14 @@ function draw() {
   if (!chats[current].length) {
     const welcome = document.createElement('div');
     welcome.className = 'welcome';
+
     const title = document.createElement('strong');
     title.textContent = 'Hey, I’m Bernard.';
+
     const description = document.createElement('p');
     description.textContent =
       'Ask me a question, get help with an idea, or just have a chat.';
+
     welcome.append(title, description);
     area.appendChild(welcome);
     return;
@@ -245,71 +250,160 @@ async function loadBrain() {
   if (brain) return brain;
 
   status.textContent =
-    'Downloading Bernard’s larger AI model. Keep this page open…';
+    'Loading Bernard’s AI model… Keep this page open.';
 
-  brain = await pipeline(
+  const loadedBrain = await pipeline(
     'text-generation',
     MODEL,
     { dtype: 'q4' }
   );
 
+  brain = loadedBrain;
   status.textContent = 'AI loaded · Bernard is ready';
   return brain;
+}
+
+// Detect repeated sentences, even if their capitalisation differs.
+function hasRepeatedSentences(text) {
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map(s => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '')
+      .replace(/\s+/g, ' ').trim())
+    .filter(s => s.length > 12);
+
+  return new Set(sentences).size < sentences.length;
+}
+
+// Remove identical sentences without removing the first occurrence.
+function cleanResponse(text) {
+  const seen = new Set();
+
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .filter(sentence => {
+      const key = sentence.toLowerCase()
+        .replace(/[^\p{L}\p{N}\s]/gu, '')
+        .replace(/\s+/g, ' ').trim();
+
+      if (!key) return true;
+      if (seen.has(key)) return false;
+
+      seen.add(key);
+      return true;
+    })
+    .join(' ')
+    .trim();
+}
+
+function extractResponse(result) {
+  const output = result?.[0]?.generated_text;
+
+  if (Array.isArray(output)) {
+    const last = output[output.length - 1];
+    return typeof last === 'string'
+      ? last.trim()
+      : (last?.content || '').trim();
+  }
+
+  if (typeof output === 'string') {
+    return output.trim();
+  }
+
+  return '';
+}
+
+const SYSTEM_PROMPT =
+  'You are Bernard, a friendly, intelligent and honest personal AI assistant. ' +
+  'Answer the latest user question directly. Never repeat the question as your answer. ' +
+  'Never repeat a sentence or phrase. Do not paraphrase the same answer several times. ' +
+  'Do not change the user’s I into you or your into my. ' +
+  'Use the conversation only when it helps answer the latest question. ' +
+  'Keep casual replies brief and explain properly when asked. ' +
+  'If you do not know, say so honestly. Never claim actions you did not perform.';
+
+async function generate(model, messages) {
+  const result = await model(messages, {
+    max_new_tokens: 100,
+    do_sample: false,
+    repetition_penalty: 1.18,
+    no_repeat_ngram_size: 4
+  });
+
+  return extractResponse(result);
 }
 
 async function answer(question) {
   const model = await loadBrain();
 
-  // Include recent conversation context, excluding the current question.
+  // Keep less history so old answers do not reinforce repetition.
+  // Never include the current question twice.
   const previous = chats[current]
     .slice(0, -1)
-    .slice(-8)
+    .slice(-6)
     .map(m => ({
       role: m.who === 'you' ? 'user' : 'assistant',
-      content: m.text
+      content: m.text.slice(0, 700)
     }));
 
   const messages = [
-    {
-      role: 'system',
-      content:
-        'You are Bernard, a friendly, intelligent and honest personal AI assistant. ' +
-        'Answer the user’s actual question directly. Do not simply repeat, paraphrase, ' +
-        'or mirror the user’s message. Do not change the user’s I into you or your ' +
-        'into my. Respond naturally as a conversation partner. Use simple, clear ' +
-        'language. For questions, give the answer first. If you do not know something, ' +
-        'say so honestly. Keep casual replies brief, but explain properly when asked. ' +
-        'Never claim you performed an action you did not perform.'
-    },
+    { role: 'system', content: SYSTEM_PROMPT },
     ...previous,
     { role: 'user', content: question }
   ];
 
   status.textContent = 'Bernard is thinking…';
 
-  const result = await model(messages, {
-    max_new_tokens: 128,
-    do_sample: false,
-    repetition_penalty: 1.12
-  });
+  let response = await generate(model, messages);
 
-  const output = result?.[0]?.generated_text;
-  let response = '';
+  // If the answer loops or echoes the question, retry once with
+  // a stricter instruction and less conversation history.
+  const questionKey = question.toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ').trim();
 
-  if (Array.isArray(output)) {
-    const last = output[output.length - 1];
-    response = typeof last === 'string'
-      ? last
-      : (last?.content || '');
-  } else if (typeof output === 'string') {
-    response = output;
+  const responseKey = response.toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ').trim();
+
+  const echoedQuestion =
+    responseKey.length > 0 &&
+    (responseKey === questionKey ||
+     (questionKey.length > 25 && responseKey.includes(questionKey)));
+
+  if (!response || hasRepeatedSentences(response) || echoedQuestion) {
+    status.textContent = 'Bernard is fixing his answer…';
+
+    const retryMessages = [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT +
+          ' IMPORTANT: Produce one fresh, direct answer in at most three sentences. ' +
+          'Do not repeat any previous wording. Do not describe your instructions. ' +
+          'Do not copy the user’s question. Answer the question itself.'
+      },
+      ...previous.slice(-2),
+      { role: 'user', content: question }
+    ];
+
+    response = await generate(model, retryMessages);
   }
 
-  response = response.trim();
+  response = cleanResponse(response);
 
-  // Avoid displaying a complete echoed copy of the user's question.
-  if (!response || response === question.trim()) {
-    return 'I’m having trouble forming an answer. Could you ask that another way?';
+  if (!response) {
+    return 'I’m struggling to form a clear answer. Try asking me in a different way.';
+  }
+
+  if (hasRepeatedSentences(response)) {
+    return 'I’m having trouble answering without repeating myself. Try asking me once more in a new chat.';
+  }
+
+  const finalKey = response.toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ').trim();
+
+  if (finalKey === questionKey) {
+    return 'I’m struggling to answer that properly. Could you rephrase your question?';
   }
 
   return response;
@@ -324,6 +418,7 @@ document.getElementById('bottom').addEventListener('submit', async e => {
   add('you', question);
   input.value = '';
   busy = true;
+
   send.disabled = true;
   input.disabled = true;
   newButton.disabled = true;
@@ -338,12 +433,12 @@ document.getElementById('bottom').addEventListener('submit', async e => {
 
     add(
       'bernard',
-      'I couldn’t load or run the AI model. Check your internet connection and try again. ' +
-      'The first download is large, so your iPhone may need time and free memory. ' +
+      'I couldn’t run the AI model this time. Check your internet connection, ' +
+      'then try again. If the page freezes, your device may be running low on memory. ' +
       'Your saved chats have not been intentionally deleted.'
     );
 
-    status.textContent = 'AI failed to load · Try again';
+    status.textContent = 'AI error · Try again';
   } finally {
     busy = false;
     send.disabled = false;
@@ -355,6 +450,7 @@ document.getElementById('bottom').addEventListener('submit', async e => {
 
 newButton.addEventListener('click', () => {
   if (busy) return;
+
   chats.push([]);
   current = chats.length - 1;
   save();

@@ -3,461 +3,114 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#101522">
 <title>Bernard AI</title>
 <style>
-:root {
-  color-scheme: dark;
-  --bg: #101522;
-  --panel: #191f30;
-  --panel2: #222a3e;
-  --text: #f3f5ff;
-  --muted: #a5afc6;
-  --accent: #8b7cff;
-  --border: #303951;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  min-height: 100dvh;
-}
-.app {
-  max-width: 850px;
-  height: 100dvh;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  padding-top: max(16px, env(safe-area-inset-top));
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-}
-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0 16px;
-  border-bottom: 1px solid var(--border);
-}
-.logo {
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #8b7cff, #42d8ce);
-  border-radius: 15px;
-  color: #101522;
-  font-size: 25px;
-  font-weight: 900;
-}
-.heading { flex: 1; min-width: 0; }
-h1 { font-size: 21px; margin: 0 0 4px; }
-#status { font-size: 12px; color: var(--muted); }
-button, input { font: inherit; }
-button {
-  border: 0;
-  border-radius: 12px;
-  padding: 11px 14px;
-  cursor: pointer;
-}
-button:disabled { opacity: .55; cursor: wait; }
-#new {
-  color: var(--text);
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  font-size: 13px;
-}
-#messages {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 18px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  overscroll-behavior: contain;
-}
-.msg {
-  max-width: 88%;
-  padding: 13px 15px;
-  border-radius: 17px;
-  line-height: 1.55;
-  font-size: 15px;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
-}
-.user {
-  align-self: flex-end;
-  background: var(--accent);
-  color: white;
-  border-bottom-right-radius: 5px;
-}
-.bernard {
-  align-self: flex-start;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-bottom-left-radius: 5px;
-}
-.welcome {
-  margin: auto 0;
-  text-align: center;
-  color: var(--muted);
-  line-height: 1.7;
-}
-.welcome strong { color: var(--text); font-size: 20px; }
-form {
-  display: flex;
-  gap: 9px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-#input {
-  flex: 1;
-  min-width: 0;
-  border: 1px solid var(--border);
-  background: var(--panel);
-  color: var(--text);
-  border-radius: 15px;
-  padding: 14px;
-  outline: none;
-  font-size: 16px;
-}
-#input:focus { border-color: var(--accent); }
-#send {
-  background: var(--accent);
-  color: white;
-  font-weight: 700;
-  min-width: 72px;
-}
-.note {
-  color: var(--muted);
-  text-align: center;
-  font-size: 11px;
-  padding-top: 9px;
-}
-@media (max-width: 450px) {
-  .app { padding-left: 12px; padding-right: 12px; }
-  .msg { max-width: 94%; }
-  #new { padding: 10px; }
-}
+:root{color-scheme:dark;--bg:#101522;--panel:#191f30;--panel2:#222a3e;--text:#f3f5ff;--muted:#a5afc6;--accent:#8b7cff;--border:#303951}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+.app{max-width:850px;height:100dvh;margin:auto;display:flex;flex-direction:column;padding:14px;padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:12px;padding:8px 0 14px;border-bottom:1px solid var(--border)}
+.logo{width:44px;height:44px;display:grid;place-items:center;background:linear-gradient(135deg,#8b7cff,#42d8ce);border-radius:14px;color:#101522;font-size:25px;font-weight:900}
+.heading{flex:1;min-width:0}h1{font-size:21px;margin:0 0 4px}#status{font-size:12px;color:var(--muted)}
+button,input{font:inherit}button{border:0;border-radius:12px;padding:11px 14px;cursor:pointer}button:disabled{opacity:.55}
+#new{color:var(--text);background:var(--panel2);border:1px solid var(--border);font-size:13px}
+#messages{flex:1;min-height:0;overflow-y:auto;padding:18px 0;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:90%;padding:13px 15px;border-radius:17px;line-height:1.5;font-size:15px;overflow-wrap:anywhere;white-space:pre-wrap}
+.user{align-self:flex-end;background:var(--accent);color:white;border-bottom-right-radius:5px}
+.bernard{align-self:flex-start;background:var(--panel);border:1px solid var(--border);border-bottom-left-radius:5px}
+.welcome{margin:auto 0;text-align:center;color:var(--muted);line-height:1.7}.welcome strong{color:var(--text);font-size:20px}
+form{display:flex;gap:9px;padding-top:12px;border-top:1px solid var(--border)}
+#input{flex:1;min-width:0;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:15px;padding:14px;font-size:16px}
+#send{background:var(--accent);color:white;font-weight:700}
+.note{color:var(--muted);text-align:center;font-size:11px;padding-top:9px}
+@media(max-width:450px){.app{padding-left:12px;padding-right:12px}.msg{max-width:96%}#new{padding:10px}}
 </style>
 </head>
 <body>
 <div class="app">
-  <header>
-    <div class="logo">B</div>
-    <div class="heading">
-      <h1>Bernard AI</h1>
-      <div id="status">Ready to start</div>
-    </div>
-    <button id="new" type="button">＋ New chat</button>
-  </header>
-
-  <main id="messages" aria-live="polite"></main>
-
-  <form id="bottom">
-    <input id="input" type="text"
-      placeholder="Message Bernard..."
-      autocomplete="off" required>
-    <button id="send" type="submit">Send</button>
-  </form>
-  <div class="note">Private browser AI · Your chats are saved in this browser</div>
+<header><div class="logo">B</div><div class="heading"><h1>Bernard AI</h1><div id="status">Ready to start</div></div><button id="new" type="button">＋ New chat</button></header>
+<main id="messages" aria-live="polite"></main>
+<form id="bottom"><input id="input" placeholder="Message Bernard..." autocomplete="off" required><button id="send">Send</button></form>
+<div class="note">Private browser AI · Chats saved in this browser</div>
 </div>
-
 <script type="module">
-import { pipeline } from
-  'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
+import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
 
-const area = document.getElementById('messages');
-const input = document.getElementById('input');
-const send = document.getElementById('send');
-const status = document.getElementById('status');
-const newButton = document.getElementById('new');
+const $=id=>document.getElementById(id);
+const area=$('messages'),input=$('input'),send=$('send'),status=$('status'),newButton=$('new');
+const KEY='bernard-chats-v2';
+const MODEL='onnx-community/SmolLM2-135M-Instruct-ONNX-MHA';
+let chats=[],current=0,brain=null,busy=false;
 
-const STORAGE_KEY = 'bernard-chats-v2';
-const MODEL = 'onnx-community/Qwen2.5-0.5B-Instruct-ONNX-MHA';
+try{chats=JSON.parse(localStorage.getItem(KEY)||'[]')}catch{}
+if(!Array.isArray(chats)||!chats.length)chats=[[]];
+chats=chats.map(c=>Array.isArray(c)?c.filter(m=>m&&typeof m.text==='string'&&(m.who==='you'||m.who==='bernard')):[]);
 
-let chats = [];
-let current = 0;
-let brain = null;
-let busy = false;
-
-try {
-  chats = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-} catch (e) {
-  chats = [];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(chats))}catch{status.textContent='Chat storage is full'}}
+function draw(){
+ area.replaceChildren();
+ if(!chats[current].length){
+  const w=document.createElement('div');w.className='welcome';
+  const t=document.createElement('strong');t.textContent='Hey, I’m Bernard.';
+  const p=document.createElement('p');p.textContent='Ask a question or have a chat.';
+  w.append(t,p);area.append(w);return;
+ }
+ for(const m of chats[current]){
+  const d=document.createElement('div');d.className='msg '+(m.who==='you'?'user':'bernard');d.textContent=m.text;area.append(d);
+ }
+ area.scrollTop=area.scrollHeight;
 }
-
-if (!Array.isArray(chats) || !chats.length) chats = [[]];
-
-chats = chats.map(chat =>
-  Array.isArray(chat)
-    ? chat.filter(m =>
-        m && typeof m.text === 'string' &&
-        (m.who === 'you' || m.who === 'bernard')
-      )
-    : []
-);
-
-function save() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
-  } catch (e) {
-    status.textContent = 'Could not save chat storage';
-  }
+function add(who,text){chats[current].push({who,text});save();draw()}
+async function loadBrain(){
+ if(brain)return brain;
+ status.textContent='Loading lightweight AI model… Keep this page open';
+ const loaded=await pipeline('text-generation',MODEL,{dtype:'q8'});
+ brain=loaded;status.textContent='Bernard is ready';return brain;
 }
-
-function draw() {
-  area.replaceChildren();
-
-  if (!chats[current].length) {
-    const welcome = document.createElement('div');
-    welcome.className = 'welcome';
-
-    const title = document.createElement('strong');
-    title.textContent = 'Hey, I’m Bernard.';
-
-    const description = document.createElement('p');
-    description.textContent =
-      'Ask me a question, get help with an idea, or just have a chat.';
-
-    welcome.append(title, description);
-    area.appendChild(welcome);
-    return;
-  }
-
-  for (const m of chats[current]) {
-    const div = document.createElement('div');
-    div.className = 'msg ' +
-      (m.who === 'you' ? 'user' : 'bernard');
-    div.textContent = m.text;
-    area.appendChild(div);
-  }
-
-  area.scrollTop = area.scrollHeight;
+function repeated(text){
+ const s=text.split(/(?<=[.!?])\s+/).map(x=>x.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,'').trim()).filter(x=>x.length>12);
+ return new Set(s).size<s.length;
 }
-
-function add(who, text) {
-  chats[current].push({ who, text });
-  save();
-  draw();
+function extract(r){
+ const g=r?.[0]?.generated_text;
+ if(Array.isArray(g)){const x=g[g.length-1];return (typeof x==='string'?x:x?.content||'').trim()}
+ return typeof g==='string'?g.trim():'';
 }
-
-async function loadBrain() {
-  if (brain) return brain;
-
-  status.textContent =
-    'Loading Bernard’s AI model… Keep this page open.';
-
-  const loadedBrain = await pipeline(
-    'text-generation',
-    MODEL,
-    { dtype: 'q4' }
-  );
-
-  brain = loadedBrain;
-  status.textContent = 'AI loaded · Bernard is ready';
-  return brain;
+async function answer(q){
+ const model=await loadBrain();
+ const history=chats[current].slice(0,-1).slice(-4).map(m=>({role:m.who==='you'?'user':'assistant',content:m.text.slice(0,400)}));
+ const prompt=[
+ {role:'system',content:'You are Bernard, a helpful and friendly AI. Answer the latest question directly. Do not repeat the question or repeat sentences. Keep answers clear and concise. Be honest when unsure.'},
+ ...history,
+ {role:'user',content:q}
+ ];
+ status.textContent='Bernard is thinking…';
+ let r=await model(prompt,{max_new_tokens:72,do_sample:false,repetition_penalty:1.2,no_repeat_ngram_size:4});
+ let text=extract(r);
+ if(!text||repeated(text)){
+  status.textContent='Trying a clearer answer…';
+  r=await model([{role:'system',content:'Give one short, direct answer. No repetition.'},{role:'user',content:q}],{max_new_tokens:64,do_sample:false,repetition_penalty:1.25,no_repeat_ngram_size:4});
+  text=extract(r);
+ }
+ const seen=new Set();
+ text=text.split(/(?<=[.!?])\s+/).filter(s=>{
+  const k=s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,'').trim();
+  if(!k||seen.has(k))return false;seen.add(k);return true;
+ }).join(' ').trim();
+ if(!text||text.toLowerCase().trim()===q.toLowerCase().trim())return 'I’m struggling to answer clearly. Try asking me another way.';
+ if(repeated(text))return 'I’m getting stuck repeating myself. Please try a new chat.';
+ return text;
 }
-
-// Detect repeated sentences, even if their capitalisation differs.
-function hasRepeatedSentences(text) {
-  const sentences = text
-    .split(/(?<=[.!?])\s+/)
-    .map(s => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '')
-      .replace(/\s+/g, ' ').trim())
-    .filter(s => s.length > 12);
-
-  return new Set(sentences).size < sentences.length;
-}
-
-// Remove identical sentences without removing the first occurrence.
-function cleanResponse(text) {
-  const seen = new Set();
-
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .filter(sentence => {
-      const key = sentence.toLowerCase()
-        .replace(/[^\p{L}\p{N}\s]/gu, '')
-        .replace(/\s+/g, ' ').trim();
-
-      if (!key) return true;
-      if (seen.has(key)) return false;
-
-      seen.add(key);
-      return true;
-    })
-    .join(' ')
-    .trim();
-}
-
-function extractResponse(result) {
-  const output = result?.[0]?.generated_text;
-
-  if (Array.isArray(output)) {
-    const last = output[output.length - 1];
-    return typeof last === 'string'
-      ? last.trim()
-      : (last?.content || '').trim();
-  }
-
-  if (typeof output === 'string') {
-    return output.trim();
-  }
-
-  return '';
-}
-
-const SYSTEM_PROMPT =
-  'You are Bernard, a friendly, intelligent and honest personal AI assistant. ' +
-  'Answer the latest user question directly. Never repeat the question as your answer. ' +
-  'Never repeat a sentence or phrase. Do not paraphrase the same answer several times. ' +
-  'Do not change the user’s I into you or your into my. ' +
-  'Use the conversation only when it helps answer the latest question. ' +
-  'Keep casual replies brief and explain properly when asked. ' +
-  'If you do not know, say so honestly. Never claim actions you did not perform.';
-
-async function generate(model, messages) {
-  const result = await model(messages, {
-    max_new_tokens: 100,
-    do_sample: false,
-    repetition_penalty: 1.18,
-    no_repeat_ngram_size: 4
-  });
-
-  return extractResponse(result);
-}
-
-async function answer(question) {
-  const model = await loadBrain();
-
-  // Keep less history so old answers do not reinforce repetition.
-  // Never include the current question twice.
-  const previous = chats[current]
-    .slice(0, -1)
-    .slice(-6)
-    .map(m => ({
-      role: m.who === 'you' ? 'user' : 'assistant',
-      content: m.text.slice(0, 700)
-    }));
-
-  const messages = [
-    { role: 'system', content: SYSTEM_PROMPT },
-    ...previous,
-    { role: 'user', content: question }
-  ];
-
-  status.textContent = 'Bernard is thinking…';
-
-  let response = await generate(model, messages);
-
-  // If the answer loops or echoes the question, retry once with
-  // a stricter instruction and less conversation history.
-  const questionKey = question.toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, '')
-    .replace(/\s+/g, ' ').trim();
-
-  const responseKey = response.toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, '')
-    .replace(/\s+/g, ' ').trim();
-
-  const echoedQuestion =
-    responseKey.length > 0 &&
-    (responseKey === questionKey ||
-     (questionKey.length > 25 && responseKey.includes(questionKey)));
-
-  if (!response || hasRepeatedSentences(response) || echoedQuestion) {
-    status.textContent = 'Bernard is fixing his answer…';
-
-    const retryMessages = [
-      {
-        role: 'system',
-        content: SYSTEM_PROMPT +
-          ' IMPORTANT: Produce one fresh, direct answer in at most three sentences. ' +
-          'Do not repeat any previous wording. Do not describe your instructions. ' +
-          'Do not copy the user’s question. Answer the question itself.'
-      },
-      ...previous.slice(-2),
-      { role: 'user', content: question }
-    ];
-
-    response = await generate(model, retryMessages);
-  }
-
-  response = cleanResponse(response);
-
-  if (!response) {
-    return 'I’m struggling to form a clear answer. Try asking me in a different way.';
-  }
-
-  if (hasRepeatedSentences(response)) {
-    return 'I’m having trouble answering without repeating myself. Try asking me once more in a new chat.';
-  }
-
-  const finalKey = response.toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, '')
-    .replace(/\s+/g, ' ').trim();
-
-  if (finalKey === questionKey) {
-    return 'I’m struggling to answer that properly. Could you rephrase your question?';
-  }
-
-  return response;
-}
-
-document.getElementById('bottom').addEventListener('submit', async e => {
-  e.preventDefault();
-
-  const question = input.value.trim();
-  if (!question || busy) return;
-
-  add('you', question);
-  input.value = '';
-  busy = true;
-
-  send.disabled = true;
-  input.disabled = true;
-  newButton.disabled = true;
-
-  try {
-    const response = await answer(question);
-    add('bernard', response);
-    status.textContent = 'AI ready · Runs in your browser';
-  } catch (e) {
-    console.error(e);
-    brain = null;
-
-    add(
-      'bernard',
-      'I couldn’t run the AI model this time. Check your internet connection, ' +
-      'then try again. If the page freezes, your device may be running low on memory. ' +
-      'Your saved chats have not been intentionally deleted.'
-    );
-
-    status.textContent = 'AI error · Try again';
-  } finally {
-    busy = false;
-    send.disabled = false;
-    input.disabled = false;
-    newButton.disabled = false;
-    input.focus();
-  }
+$('bottom').addEventListener('submit',async e=>{
+ e.preventDefault();const q=input.value.trim();if(!q||busy)return;
+ add('you',q);input.value='';busy=true;send.disabled=true;input.disabled=true;newButton.disabled=true;
+ try{add('bernard',await answer(q));status.textContent='AI ready · Runs in your browser'}
+ catch(e){console.error(e);brain=null;add('bernard','I couldn’t run the model. Check your connection and try again. Your saved chats have not been intentionally deleted.');status.textContent='AI error'}
+ finally{busy=false;send.disabled=false;input.disabled=false;newButton.disabled=false;input.focus()}
 });
-
-newButton.addEventListener('click', () => {
-  if (busy) return;
-
-  chats.push([]);
-  current = chats.length - 1;
-  save();
-  draw();
-  input.focus();
-});
-
+newButton.addEventListener('click',()=>{if(busy)return;chats.push([]);current=chats.length-1;save();draw();input.focus()});
 draw();
 </script>
 </body>

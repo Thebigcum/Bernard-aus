@@ -33,7 +33,7 @@ a{color:#a99fff;overflow-wrap:anywhere}
 <div class="app">
 <header>
 <div class="logo">B</div>
-<div class="heading"><h1>Bernard AI</h1><div id="status">Free internet search enabled</div></div>
+<div class="heading"><h1>Bernard AI</h1><div id="status">Ready · Free web search</div></div>
 <button id="new" type="button">＋ New chat</button>
 </header>
 <main id="messages" aria-live="polite"></main>
@@ -41,7 +41,7 @@ a{color:#a99fff;overflow-wrap:anywhere}
 <input id="input" type="text" placeholder="Message Bernard..." autocomplete="off" required>
 <button id="send" type="submit">Send</button>
 </form>
-<div class="note">Browser AI + Wikipedia search · Chats saved on this device</div>
+<div class="note">Free browser AI + web search · Chats saved on this device</div>
 </div>
 <script type="module">
 import{pipeline}from'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
@@ -51,38 +51,36 @@ let chats=[],current=0,brain=null,busy=false;
 try{chats=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
 if(!Array.isArray(chats)||!chats.length)chats=[[]];
 chats=chats.map(c=>Array.isArray(c)?c.filter(m=>m&&typeof m.text==='string'&&(m.who==='you'||m.who==='bernard')):[]);
-function save(){try{localStorage.setItem(KEY,JSON.stringify(chats))}catch(e){status.textContent='Storage full'}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(chats))}catch(e){status.textContent='Chat storage is full'}}
 function draw(){
 area.replaceChildren();
-if(!chats[current].length){const w=document.createElement('div');w.className='welcome';const b=document.createElement('strong');b.textContent='Hey, I’m Bernard.';const p=document.createElement('p');p.textContent='Ask me anything. I can search the internet for information.';w.append(b,p);area.append(w);return}
+if(!chats[current].length){const w=document.createElement('div');w.className='welcome';const b=document.createElement('strong');b.textContent='Hey, I’m Bernard.';const p=document.createElement('p');p.textContent='Ask me anything. I can search the internet and summarise information.';w.append(b,p);area.append(w);return}
 for(const m of chats[current]){const d=document.createElement('div');d.className='msg '+(m.who==='you'?'user':'bernard');d.textContent=m.text;area.append(d)}
 area.scrollTop=area.scrollHeight;
 }
 function add(who,text){chats[current].push({who,text});save();draw()}
-function linkify(text){
-const box=document.createElement('div');box.className='msg bernard';
-const lines=text.split('\n');
+function clean(s){return(s||'').replace(/<[^>]*>/g,'').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim()}
+function addAnswer(text){
+add('bernard',text);
+const d=area.lastElementChild;if(!d)return;
+const lines=text.split('\n');d.replaceChildren();
 for(let i=0;i<lines.length;i++){
-const line=lines[i],match=line.match(/^(.*?)(https?:\/\/\S+)$/);
-if(match){box.append(document.createTextNode(match[1]));const a=document.createElement('a');a.href=match[2];a.textContent=match[2];a.target='_blank';a.rel='noopener noreferrer';box.append(a)}
-else box.append(document.createTextNode(line));
-if(i<lines.length-1)box.append(document.createElement('br'));
+const match=lines[i].match(/^(.*?)(https?:\/\/\S+)$/);
+if(match){d.append(document.createTextNode(match[1]));const a=document.createElement('a');a.href=match[2];a.textContent=match[2];a.target='_blank';a.rel='noopener noreferrer';d.append(a)}
+else d.append(document.createTextNode(lines[i]));
+if(i<lines.length-1)d.append(document.createElement('br'));
 }
-area.append(box);area.scrollTop=area.scrollHeight;
 }
-function addAnswer(text){chats[current].push({who:'bernard',text});save();draw();const last=area.lastElementChild;if(last){const lines=text.split('\n');last.replaceChildren();for(let i=0;i<lines.length;i++){const m=lines[i].match(/^(.*?)(https?:\/\/\S+)$/);if(m){last.append(document.createTextNode(m[1]));const a=document.createElement('a');a.href=m[2];a.textContent=m[2];a.target='_blank';a.rel='noopener noreferrer';last.append(a)}else last.append(document.createTextNode(lines[i]));if(i<lines.length-1)last.append(document.createElement('br'))}}}
-function plain(s){const d=document.createElement('div');d.innerHTML=s;return(d.textContent||'').trim()}
 async function searchWeb(q){
-status.textContent='Searching Wikipedia…';
-const url='https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(q)+'&format=json&origin=*&srlimit=4';
+status.textContent='Searching the internet…';
+const url='https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+encodeURIComponent(q)+'&format=json&origin=*&srlimit=3';
 const r=await fetch(url);if(!r.ok)throw Error('Search unavailable');
 const data=await r.json(),items=data.query?.search||[];
-const results=await Promise.all(items.slice(0,3).map(async x=>{
+return Promise.all(items.map(async x=>{
 let summary='';
 try{const p=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(x.title.replace(/ /g,'_')));if(p.ok){const j=await p.json();summary=j.extract||''}}catch(e){}
-return{title:x.title,summary:summary||plain(x.snippet),url:'https://en.wikipedia.org/wiki/'+encodeURIComponent(x.title.replace(/ /g,'_'))};
-}));
-return results.filter(x=>x.summary);
+return{title:x.title,summary:summary||clean(x.snippet),url:'https://en.wikipedia.org/wiki/'+encodeURIComponent(x.title.replace(/ /g,'_'))};
+})).then(a=>a.filter(x=>x.summary));
 }
 async function loadBrain(){
 if(brain)return brain;
@@ -90,42 +88,40 @@ status.textContent='Loading AI model…';
 brain=await pipeline('text-generation',MODEL,{dtype:'q8',progress_callback:p=>{if(p.status==='progress'&&typeof p.progress==='number')status.textContent='Downloading AI: '+Math.round(p.progress)+'%';else if(p.status==='downloading')status.textContent='Downloading AI model…'}});
 return brain;
 }
-async function answer(q){
-const joke=/\b(joke|make me laugh|something funny)\b/i.test(q);
-if(joke){
-const jokes=[
-'Why did the scarecrow win an award? Because he was outstanding in his field.',
-'What do you call cheese that isn’t yours? Nacho cheese.',
-'I told my computer I needed a break. It said, “No problem”—then went to sleep.',
-'Why did the bicycle fall over? It was two-tired.',
-'Why did the maths book look sad? It had too many problems.'
-];
-return jokes[Math.floor(Math.random()*jokes.length)];
+function isSummary(q){return/\b(summar(?:y|ise|ize|ising|izing)|sum up|in short|briefly|key points|main points)\b/i.test(q)}
+function isJoke(q){return/\b(joke|make me laugh|something funny)\b/i.test(q)}
+function getJoke(){const a=['Why did the scarecrow win an award? Because he was outstanding in his field.','What do you call cheese that isn’t yours? Nacho cheese.','Why did the bicycle fall over? It was two-tired.','I told my computer I needed a break. It went to sleep.','Why did the maths book look sad? It had too many problems.'];return a[Math.floor(Math.random()*a.length)]}
+function shorten(text,max=3){
+const sentences=text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[text];
+return sentences.slice(0,max).join(' ').trim().slice(0,650);
 }
-const greeting=/^(hi|hello|hey|yo|how are you|thanks|thank you)[!. ]*$/i.test(q);
+async function answer(q){
+if(isJoke(q))return getJoke();
+const greeting=/^(hi|hello|hey|yo|thanks|thank you|good morning|good night)[!. ]*$/i.test(q);
 if(!greeting){
 try{
 const results=await searchWeb(q);
 if(results.length){
-status.textContent='Search complete · Showing source results';
-return 'Here is what I found online for: '+q+'\n\n'+results.map((x,i)=>(i+1)+'. '+x.title+'\n'+x.summary+'\nSource: '+x.url).join('\n\n')+'\n\nThese are search results, not a guarantee that every detail is current or correct.';
+const chosen=isSummary(q)?results.slice(0,2):results.slice(0,2);
+let out=isSummary(q)?'Here is a short summary:\n\n'+chosen.map(x=>x.title+': '+shorten(x.summary,3)).join('\n\n'):'Here is what I found:\n\n'+chosen.map(x=>x.title+': '+shorten(x.summary,4)).join('\n\n');
+out+='\n\nSources:\n'+chosen.map(x=>x.url).join('\n');
+return out;
 }
-}catch(e){console.error('Search error:',e)}
+}catch(e){console.warn('Web search unavailable',e)}
 }
-status.textContent='Bernard is thinking…';
+status.textContent='Loading AI only when needed…';
 const model=await loadBrain();
-const history=chats[current].slice(0,-1).slice(-4).map(m=>({role:m.who==='you'?'user':'assistant',content:m.text.slice(0,250)}));
-const out=await model([{role:'system',content:'You are Bernard, a friendly helpful assistant. Answer directly in simple language. Do not repeat yourself. Be honest when unsure.'},...history,{role:'user',content:q}],{max_new_tokens:64,do_sample:false,repetition_penalty:1.2,no_repeat_ngram_size:4});
+const history=chats[current].slice(0,-1).slice(-4).map(m=>({role:m.who==='you'?'user':'assistant',content:m.text.slice(0,220)}));
+const out=await model([{role:'system',content:'You are Bernard, a friendly helpful assistant. Answer directly and simply. Do not repeat yourself. Be honest if unsure.'},...history,{role:'user',content:q}],{max_new_tokens:64,do_sample:false,repetition_penalty:1.2,no_repeat_ngram_size:4});
 const g=out?.[0]?.generated_text;
 let s=Array.isArray(g)?(g[g.length-1]?.content||''):g;
-if(typeof s!=='string'||!s.trim())return'I couldn’t make a clear answer. Try asking another way.';
-return s.trim();
+return typeof s==='string'&&s.trim()?s.trim():'I could not make a clear answer. Please try asking another way.';
 }
 $('bottom').addEventListener('submit',async e=>{
 e.preventDefault();const q=input.value.trim();if(!q||busy)return;
 add('you',q);input.value='';busy=true;send.disabled=input.disabled=newButton.disabled=true;
-try{addAnswer(await answer(q));status.textContent='Ready · Internet search available'}
-catch(e){console.error(e);brain=null;add('bernard','I couldn’t complete that request. Check your connection and try again. Your saved chats have not been intentionally deleted.');status.textContent='Error · Try again'}
+try{addAnswer(await answer(q));status.textContent='Ready · Web search available'}
+catch(e){console.error(e);brain=null;add('bernard','I could not complete that request. Check your connection and try again. Your saved chats have not been intentionally deleted.');status.textContent='Error · Try again'}
 finally{busy=false;send.disabled=input.disabled=newButton.disabled=false;input.focus()}
 });
 newButton.addEventListener('click',()=>{if(busy)return;chats.push([]);current=chats.length-1;save();draw();input.focus()});

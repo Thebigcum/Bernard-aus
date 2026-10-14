@@ -5,18 +5,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#111827">
-<title>Bernard AI</title>
+<title>Bernard</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#111827;color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
-header{padding:16px;background:#1f2937;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
+header{padding:16px;background:#1f2937;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2}
 h1{margin:0;font-size:23px}
 button,input{font:inherit;border-radius:12px;border:0;padding:12px}
 button{background:#2563eb;color:white;cursor:pointer}
 button:disabled{opacity:.5}
 #status{padding:8px 14px;color:#93c5fd;font-size:13px}
 #chats{padding:10px;display:flex;gap:8px;overflow-x:auto}
-#messages{padding:14px;max-width:800px;margin:auto;padding-bottom:140px}
+#messages{padding:14px;max-width:800px;margin:auto;padding-bottom:145px}
 .msg{padding:13px 15px;margin:12px 0;border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
 .user{background:#1d4ed8;margin-left:35px}
 .bernard{background:#273449;margin-right:15px}
@@ -32,7 +32,7 @@ a{color:#93c5fd}
 <h1>🤖 Bernard</h1>
 <button id="newChat">New chat</button>
 </header>
-<div id="status">Ready when you are.</div>
+<div id="status">Hey mate! Bernard is ready when you are.</div>
 <div id="chats"></div>
 <main id="messages"></main>
 <div id="bottom">
@@ -40,25 +40,26 @@ a{color:#93c5fd}
 <input id="question" placeholder="Ask Bernard anything..." autocomplete="off">
 <button id="send" type="submit">Send</button>
 </form>
-<div class="small">Local AI · Free web-search attempts · No paid API key</div>
+<div class="small">Your AI companion · Local AI · Free web search</div>
 </div>
+
 <script type="module">
 import { pipeline, env } from
 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
 
-const KEY = 'bernard-chats-v2';
-const MODEL = 'onnx-community/SmolLM2-135M-Instruct-ONNX-MHA';
+const KEY='bernard-chats-v2';
+const MODEL='onnx-community/SmolLM2-135M-Instruct-ONNX-MHA';
 
-const messagesEl = document.querySelector('#messages');
-const questionEl = document.querySelector('#question');
-const statusEl = document.querySelector('#status');
-const sendBtn = document.querySelector('#send');
-const chatsEl = document.querySelector('#chats');
+const messagesEl=document.querySelector('#messages');
+const questionEl=document.querySelector('#question');
+const statusEl=document.querySelector('#status');
+const sendBtn=document.querySelector('#send');
+const chatsEl=document.querySelector('#chats');
 
-let chats = {};
-let currentId = '';
-let brain = null;
-let busy = false;
+let chats={};
+let currentId='';
+let brain=null;
+let busy=false;
 
 function newId(){
  return Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -66,10 +67,8 @@ function newId(){
 
 function loadSaved(){
  try{
-  const saved = JSON.parse(localStorage.getItem(KEY)||'{}');
-  if(saved && typeof saved==='object' && !Array.isArray(saved)){
-   chats = saved;
-  }
+  const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
+  if(saved&&typeof saved==='object'&&!Array.isArray(saved))chats=saved;
  }catch(e){chats={};}
  if(!Object.keys(chats).length){
   currentId=newId();
@@ -80,16 +79,17 @@ function loadSaved(){
  render();
 }
 
+function current(){
+ if(!Array.isArray(chats[currentId]))chats[currentId]=[];
+ return chats[currentId];
+}
+
 function save(){
  try{
   localStorage.setItem(KEY,JSON.stringify(chats));
  }catch(e){
-  statusEl.textContent='Storage is full. Some new messages may not save.';
+  statusEl.textContent='Storage is full. Some messages may not save.';
  }
-}
-
-function current(){
- return chats[currentId] || (chats[currentId]=[]);
 }
 
 function render(){
@@ -103,9 +103,9 @@ function render(){
  chatsEl.replaceChildren();
  for(const id of Object.keys(chats)){
   const b=document.createElement('button');
-  const first=chats[id].find(m=>m.role==='user');
+  const first=(chats[id]||[]).find(m=>m.role==='user');
   b.textContent=(id===currentId?'✓ ':'')+
-    (first?first.text.slice(0,22):'New chat');
+    (first?String(first.text).slice(0,22):'New chat');
   b.onclick=()=>{currentId=id;render();};
   chatsEl.appendChild(b);
  }
@@ -118,73 +118,95 @@ function add(role,text){
  render();
 }
 
-function clean(text){
+function clean(s){
  const el=document.createElement('div');
- el.innerHTML=text||'';
+ el.innerHTML=s||'';
  return (el.textContent||'').replace(/\s+/g,' ').trim();
 }
 
+const jokes=[
+'Why did the computer go to the doctor? It had a virus. Classic computer drama.',
+'Why was the maths book sad? It had too many problems. Honestly, relatable.',
+'What do you call a sleeping dinosaur? A dino-snore. I will see myself out.',
+'Why did the bicycle fall over? It was two-tired. That joke has been going downhill.',
+'Why do programmers prefer dark mode? Because light attracts bugs.',
+'What do you call a fish wearing a bow tie? Sofishticated.',
+'Why did the scarecrow win an award? He was outstanding in his field.'
+];
+
+function isJoke(q){
+ return /\b(joke|make me laugh|tell me something funny|funny story)\b/i.test(q);
+}
+
+function isSummary(q){
+ return /\b(summarise|summarize|summary|sum up)\b/i.test(q);
+}
+
+function isSearch(q){
+ return /\b(search the web|search online|look up|latest news|on the internet|find sources|web search)\b/i.test(q);
+}
+
 async function searchWeb(query){
- statusEl.textContent='Searching free public sources…';
+ statusEl.textContent='Looking around the web, mate…';
  const results=[];
  const seen=new Set();
 
  function addResult(title,summary,url){
-  title=clean(title);summary=clean(summary);
+  title=clean(title);
+  summary=clean(summary);
   if(!title||!summary||!url||seen.has(url))return;
+  if(!/^https:\/\//i.test(url))return;
   seen.add(url);
-  results.push({title,summary:summary.slice(0,1100),url});
+  results.push({title,summary:summary.slice(0,1200),url});
  }
 
- // DuckDuckGo instant answers. This endpoint may block browser requests.
+ // Public instant-answer service. Availability and browser access may vary.
  try{
   const url='https://api.duckduckgo.com/?q='+
-   encodeURIComponent(query)+'&format=json&no_html=1&skip_disambig=1';
+   encodeURIComponent(query)+
+   '&format=json&no_html=1&skip_disambig=1';
   const r=await fetch(url);
   if(r.ok){
    const d=await r.json();
    if(d.AbstractText)addResult(d.Heading,d.AbstractText,d.AbstractURL);
-   for(const t of (d.RelatedTopics||[])){
+   for(const t of d.RelatedTopics||[]){
     if(t.Text&&t.FirstURL)addResult(t.Text,t.Text,t.FirstURL);
-    for(const s of (t.Topics||[])){
+    for(const s of t.Topics||[]){
      if(s.Text&&s.FirstURL)addResult(s.Text,s.Text,s.FirstURL);
     }
    }
   }
  }catch(e){}
 
- // Wikipedia search fallback.
+ // Wikipedia fallback.
  try{
   const url='https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+
    encodeURIComponent(query)+'&format=json&origin=*&srlimit=5';
   const r=await fetch(url);
   if(r.ok){
    const d=await r.json();
-   for(const item of (d.query?.search||[])){
+   for(const item of d.query?.search||[]){
     const title=item.title;
     const page='https://en.wikipedia.org/wiki/'+
      encodeURIComponent(title.replace(/ /g,'_'));
-    addResult(title,clean(item.snippet.replace(/<[^>]*>/g,'')),page);
+    addResult(title,item.snippet.replace(/<[^>]*>/g,''),page);
    }
   }
  }catch(e){}
 
- // Prefer results that overlap with the query.
- const words=query.toLowerCase().split(/[^a-z0-9]+/)
-  .filter(w=>w.length>2);
- results.sort((a,b)=>{
-  function score(x){
-   const text=(x.title+' '+x.summary).toLowerCase();
-   return words.reduce((n,w)=>n+(text.includes(w)?1:0),0);
-  }
-  return score(b)-score(a);
- });
- return results.slice(0,5);
+ const words=query.toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2);
+ function score(x){
+  const text=(x.title+' '+x.summary).toLowerCase();
+  return words.reduce((n,w)=>n+(text.includes(w)?1:0),0);
+ }
+ results.sort((a,b)=>score(b)-score(a));
+ return results.filter(r=>score(r)>0).slice(0,5);
 }
 
 function formatResults(results){
- if(!results.length)
-  return 'I could not retrieve useful web results. The public search services may be unavailable in this browser.';
+ if(!results.length){
+  return 'I couldn’t find useful results this time, mate. The free search services may be unavailable, or the query may need rewording.';
+ }
  return results.map((r,i)=>
   `${i+1}. ${r.title}\n${r.summary}\nSource: ${r.url}`
  ).join('\n\n');
@@ -192,7 +214,7 @@ function formatResults(results){
 
 async function loadBrain(){
  if(brain)return brain;
- statusEl.textContent='Downloading the AI model. Keep Bernard open…';
+ statusEl.textContent='Loading the AI model. This may take a while…';
  env.allowLocalModels=false;
  env.useBrowserCache=true;
  brain=await pipeline('text-generation',MODEL,{dtype:'q8'});
@@ -200,25 +222,24 @@ async function loadBrain(){
  return brain;
 }
 
-function isJoke(q){
- return /\b(joke|make me laugh|funny)\b/i.test(q);
+function personality(){
+ return `You are Bernard, a friendly AI companion.
+PERSONALITY:
+- Be warm, relaxed, witty and curious, like a clever mate.
+- Use natural language and occasional light humour, not jokes in every reply.
+- Be supportive without blindly agreeing with everything.
+- Admit mistakes and uncertainty honestly.
+- Avoid repetitive greetings, repeated reassurance and robotic filler.
+- Do not claim to remember anything that is not in the provided conversation.
+ANSWER RULES:
+- Answer the exact question first.
+- Keep simple answers short. Explain difficult topics step by step.
+- For maths, calculate carefully and show useful working.
+- Never invent sources, facts, or search results.
+- Do not bring up frightening or unrelated subjects without a reason.
+- If you don't know, say so and suggest how to check.
+`;
 }
-
-function isSearch(q){
- return /\b(search|look up|latest|news|on the internet|online|sources|website|web search)\b/i.test(q);
-}
-
-function isSummary(q){
- return /\b(summarise|summarize|summary|sum up|in short)\b/i.test(q);
-}
-
-const jokes=[
- 'Why did the computer go to the doctor? It had a virus.',
- 'Why was the maths book sad? It had too many problems.',
- 'What do you call a sleeping dinosaur? A dino-snore.',
- 'Why did the bicycle fall over? It was two-tired.',
- 'Why do programmers prefer dark mode? Because light attracts bugs.'
-];
 
 async function answer(q){
  if(isJoke(q)){
@@ -229,55 +250,61 @@ async function answer(q){
   const results=await searchWeb(q);
   if(results.length){
    if(isSummary(q)){
-    return 'Here is a short summary of the information I found:\n\n'+
-      results.slice(0,3).map(r=>r.title+': '+r.summary).join('\n\n')+
-      '\n\nSources:\n'+results.slice(0,3).map(r=>r.url).join('\n');
+    return 'Alright mate — here’s the short version based on the results I found:\n\n'+
+     results.slice(0,3).map(r=>r.title+': '+r.summary).join('\n\n')+
+     '\n\nSources:\n'+results.slice(0,3).map(r=>r.url).join('\n');
    }
    return formatResults(results);
   }
   if(isSearch(q)){
-   return 'I could not access the public search services this time. Check your connection and try again.';
+   return 'I couldn’t reach the free search services just now, mate. Try again or rephrase the search.';
   }
  }
 
  statusEl.textContent='Thinking…';
+
  const model=await loadBrain();
- const history=current().slice(-8)
+ const history=current().slice(-10)
   .map(m=>(m.role==='user'?'User: ':'Bernard: ')+m.text)
   .join('\n');
- const prompt=
-  'You are Bernard, a helpful and friendly AI assistant. '+
-  'Answer the exact question asked. Be accurate, concise, and clear. '+
-  'For maths, show the calculation. If you do not know something, say so. '+
-  'Do not invent facts or introduce unrelated frightening topics.\n'+
-  history+'\nBernard:';
+
+ const prompt=personality()+
+ '\nConversation so far:\n'+history+
+ '\nBernard:';
 
  const out=await model(prompt,{
-  max_new_tokens:120,
+  max_new_tokens:140,
   do_sample:true,
-  temperature:0.6,
-  repetition_penalty:1.15
+  temperature:0.65,
+  repetition_penalty:1.18
  });
+
  let text=out?.[0]?.generated_text||'';
- text=text.slice(text.lastIndexOf('Bernard:')+8).trim();
- return text||'Sorry mate, I could not form an answer. Try asking another way.';
+ const marker=text.lastIndexOf('Bernard:');
+ if(marker>=0)text=text.slice(marker+8);
+ text=text.trim();
+
+ if(!text)return 'I lost my train of thought there, mate. Give me another go.';
+ return text;
 }
 
 document.querySelector('#form').addEventListener('submit',async e=>{
  e.preventDefault();
  const q=questionEl.value.trim();
  if(!q||busy)return;
+
  busy=true;
  sendBtn.disabled=true;
  questionEl.value='';
  add('user',q);
+
  try{
   const a=await answer(q);
   add('assistant',a);
-  statusEl.textContent='Ready.';
+  statusEl.textContent='All good, mate. What else have you got?';
  }catch(err){
   console.error(err);
-  add('assistant','Sorry mate, something went wrong. The AI model may not have loaded, or the browser may have run out of memory. Try reloading once and asking a shorter question.');
+  add('assistant','Sorry mate, something went wrong. The model may still be loading, or the browser may have run out of memory. Try a shorter question.');
   statusEl.textContent='Something went wrong.';
   brain=null;
  }finally{

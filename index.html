@@ -9,154 +9,89 @@
 <style>
 :root{color-scheme:dark;--bg:#10111b;--panel:#191b29;--line:#303246;--accent:#9277ff;--text:#f4f3ff;--muted:#a5a6bf}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,textarea{font:inherit}
-button{cursor:pointer;color:var(--text);border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:11px}
-button:active{transform:scale(.98)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+button,textarea{font:inherit}button{cursor:pointer;color:var(--text);border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:11px}
 .app{max-width:850px;height:100dvh;margin:auto;display:flex;flex-direction:column}
-header{padding:15px 17px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);background:var(--bg)}
-.logo{width:43px;height:43px;border-radius:15px;background:linear-gradient(135deg,#9277ff,#4edbc0);display:grid;place-items:center;font-size:23px;font-weight:800;color:#10111b}
+header{padding:13px 15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#9277ff,#4edbc0);display:grid;place-items:center;font-size:23px;font-weight:800;color:#10111b}
 .brand{flex:1}.brand h1{font-size:18px;margin:0 0 4px}.status{font-size:12px;color:var(--muted)}
-.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#54ddb1;margin-right:5px}
-#menu{padding:9px}
-main{flex:1;overflow:auto;padding:18px 15px;scroll-behavior:smooth}
-.welcome{max-width:560px;margin:12vh auto 25px;text-align:center}
-.welcome .logo{margin:auto;width:64px;height:64px;font-size:32px}
-.welcome h2{font-size:29px;margin:17px 0 9px}
+main{flex:1;overflow:auto;padding:16px}
+.welcome{max-width:520px;margin:10vh auto 25px;text-align:center}
+.welcome .logo{margin:auto;width:62px;height:62px;font-size:32px}
+.welcome h2{font-size:28px;margin:17px 0 8px}
 .welcome p{color:var(--muted);line-height:1.6}
-.suggestions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:22px}
-.suggestions button{text-align:left;line-height:1.45}
+.suggestions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px}
+.suggestions button{text-align:left;line-height:1.4}
 .suggestions small{display:block;color:var(--muted);margin-top:4px}
-.message{display:flex;margin:17px 0;gap:10px;align-items:flex-start}
-.avatar{flex:0 0 31px;width:31px;height:31px;border-radius:11px;display:grid;place-items:center;background:#29283f;font-size:14px}
-.message.user .avatar{background:#31403e}
-.bubble{max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;padding:12px 14px;border:1px solid var(--line);border-radius:5px 15px 15px 15px;background:var(--panel)}
-.message.user{flex-direction:row-reverse}
-.message.user .bubble{background:#292443;border-radius:15px 5px 15px 15px}
-.composer{padding:10px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg)}
-.inputbox{display:flex;align-items:flex-end;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:7px}
-textarea{width:100%;resize:none;max-height:130px;min-height:42px;background:transparent;border:0;outline:0;color:var(--text);padding:10px 7px}
-#send{background:var(--accent);color:white;border:0;font-weight:700;min-width:46px;height:43px}
-.note{text-align:center;font-size:11px;color:var(--muted);margin:9px 0 0}
-.panel{padding:16px;border:1px solid var(--line);background:var(--panel);border-radius:16px;margin:12px 0}
-.panel h3{margin:0 0 12px}.panel p{color:var(--muted);line-height:1.5;font-size:14px}
-.row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
-.row span{font-size:14px}.row small{display:block;color:var(--muted);margin-top:4px}
-select{max-width:50%;background:var(--bg);color:var(--text);border:1px solid var(--line);padding:9px;border-radius:10px}
+.message{display:flex;margin:15px 0;gap:9px;align-items:flex-start}
+.avatar{flex:0 0 30px;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#29283f;font-size:13px}
+.bubble{max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;padding:11px 13px;border:1px solid var(--line);border-radius:5px 14px 14px 14px;background:var(--panel)}
+.message.user{flex-direction:row-reverse}.message.user .avatar{background:#31403e}
+.message.user .bubble{background:#292443;border-radius:14px 5px 14px 14px}
+.composer{padding:10px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.inputbox{display:flex;align-items:flex-end;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:6px}
+textarea{width:100%;resize:none;max-height:100px;min-height:42px;background:transparent;border:0;outline:0;color:var(--text);padding:10px}
+#send{background:var(--accent);border:0;min-width:45px;height:43px}
+.note{text-align:center;font-size:11px;color:var(--muted);margin-top:8px}
 #drawer{display:none;position:fixed;inset:0;background:#0009;z-index:5}
-#drawer.open{display:block}
-.drawerbox{width:min(330px,88vw);height:100%;background:var(--bg);padding:20px;overflow:auto}
-.drawerhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-#chatlist button{display:block;width:100%;text-align:left;margin:8px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#drawer.open{display:block}.drawerbox{width:min(330px,88vw);height:100%;background:var(--bg);padding:18px;overflow:auto}
+.drawerhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.panel{padding:14px;border:1px solid var(--line);background:var(--panel);border-radius:14px;margin:12px 0}
+.panel p{color:var(--muted);font-size:13px;line-height:1.5}
+#chatlist button{display:block;width:100%;text-align:left;margin:7px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hidden{display:none!important}
-a{color:#b9a9ff}
-@media(min-width:650px){main{padding:24px 26px}.composer{padding-left:25px;padding-right:25px}.welcome{margin-top:10vh}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <button id="menu" aria-label="Open menu">☰</button>
-  <div class="logo">B</div>
-  <div class="brand"><h1>Bernard AUS</h1><div class="status"><span class="dot"></span><span id="status">Ready to chat</span></div></div>
-  <button id="newchat" aria-label="New chat">＋</button>
+<button id="menu">☰</button><div class="logo">B</div>
+<div class="brand"><h1>Bernard AUS</h1><div class="status" id="status">Ready to chat</div></div>
+<button id="newchat">＋</button>
 </header>
 <main id="main">
-  <section class="welcome" id="welcome">
-    <div class="logo">B</div>
-    <h2>G'day, mate.</h2>
-    <p>I'm Bernard. I'll be straight with you, think things through with you, and help you get things done. Let's build something good.</p>
-    <div class="suggestions">
-      <button data-prompt="Teach me something interesting.">🧠 Learn something<small>Explain it clearly</small></button>
-      <button data-prompt="Help me plan a project from scratch.">🛠️ Build a project<small>One step at a time</small></button>
-      <button data-prompt="Tell me a genuinely funny joke.">😄 Make me laugh<small>Give me a good one</small></button>
-      <button data-prompt="What can you do, and what are your limitations?">✨ What can you do?<small>Let's get started</small></button>
-    </div>
-  </section>
-  <div id="messages"></div>
+<section class="welcome" id="welcome">
+<div class="logo">B</div><h2>G'day, mate.</h2>
+<p>I'm Bernard. I'll be straight with you, think things through with you, and help you get things done.</p>
+<div class="suggestions">
+<button data-prompt="Teach me something interesting.">🧠 Learn something<small>Explain it clearly</small></button>
+<button data-prompt="Help me plan a project from scratch.">🛠️ Build a project<small>One step at a time</small></button>
+<button data-prompt="Tell me a genuinely funny joke.">😄 Make me laugh<small>Give me a good one</small></button>
+<button data-prompt="What can you do?">✨ What can you do?<small>Get started</small></button>
+</div></section><div id="messages"></div>
 </main>
-<div class="composer">
-  <div class="inputbox">
-    <textarea id="input" rows="1" placeholder="Message Bernard…" aria-label="Message Bernard"></textarea>
-    <button id="send" aria-label="Send message">➤</button>
-  </div>
-  <div class="note">Bernard can make mistakes. Check important information.</div>
+<div class="composer"><div class="inputbox">
+<textarea id="input" rows="1" placeholder="Message Bernard…"></textarea>
+<button id="send">➤</button></div>
+<div class="note">Your chats are saved in this browser. AI can make mistakes.</div></div>
 </div>
-</div>
-
-<div id="drawer">
- <div class="drawerbox">
-  <div class="drawerhead"><strong>Bernard AUS</strong><button id="closemenu">✕</button></div>
-  <button id="drawernew" style="width:100%">＋ New chat</button>
-  <div class="panel"><h3>Conversations</h3><div id="chatlist"></div></div>
-  <button id="settingsbutton" style="width:100%">⚙️ Settings</button>
-  <div class="panel"><h3>About Bernard</h3><p>A personal assistant project. Your saved conversations stay in this browser unless you clear its site data. They do not automatically sync between devices.</p></div>
- </div>
-</div>
-
+<div id="drawer"><div class="drawerbox">
+<div class="drawerhead"><strong>Bernard AUS</strong><button id="closemenu">✕</button></div>
+<button id="drawernew" style="width:100%">＋ New chat</button>
+<div class="panel"><strong>Conversations</strong><div id="chatlist"></div></div>
+<div class="panel"><strong>About</strong><p>Bernard uses an experimental local AI engine. The model download can be large. Internet search and voice features are not yet connected.</p></div>
+</div></div>
 <script type="module">
 const $=id=>document.getElementById(id);
-const STORAGE="bernard_aus_chats_v1";
-const SYSTEM=`You are Bernard AUS, a helpful personal AI assistant. Your personality is warm, loyal, candid, practical, curious, and lightly humorous. Speak naturally like a trusted mate, without pretending to be human or claiming feelings you do not have. Be intelligent, thoughtful, and honest. Give useful answers rather than generic filler. Explain difficult topics clearly and adapt to the user's level. For projects, give one manageable step at a time when appropriate. Admit uncertainty; never invent facts, web searches, or abilities. Be respectful, encourage good decisions, and disagree constructively when necessary. The user is in Australia, so use Australian English and metric units where appropriate.`;
+const KEY="bernard_aus_chats_v1";
+const SYSTEM=`You are Bernard AUS, a capable, friendly, candid AI assistant. You are warm, practical, curious and lightly humorous, like a trusted mate. Be genuinely helpful, not repetitive or generic. Explain your reasoning clearly, check simple arithmetic carefully, and be honest when uncertain. Use Australian English. Never claim to have searched the internet unless you actually did. Keep most answers concise but useful.`;
 let chats=[],current=null,busy=false,engine=null;
-try{chats=JSON.parse(localStorage.getItem(STORAGE)||"[]")}catch{}
-function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(chats))}catch{setStatus("Storage full — export or clear old chats")}}
+try{chats=JSON.parse(localStorage.getItem(KEY)||"[]")}catch{chats=[]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(chats))}catch(e){setStatus("Could not save: storage full")}}
 function setStatus(s){$("status").textContent=s}
-function makeChat(){const c={id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),title:"New chat",messages:[],created:Date.now()};chats.unshift(c);current=c.id;persist();render();renderList()}
 function active(){return chats.find(c=>c.id===current)}
-function render(){
- const c=active();$("messages").innerHTML="";$("welcome").classList.toggle("hidden",!!(c&&c.messages.length));
- if(!c)return;
- for(const m of c.messages){const el=document.createElement("div");el.className="message "+(m.role==="user"?"user":"");const av=document.createElement("div");av.className="avatar";av.textContent=m.role==="user"?"You":"B";const b=document.createElement("div");b.className="bubble";b.textContent=m.content;el.append(av,b);$("messages").append(el)}
- $("main").scrollTop=$("main").scrollHeight;
-}
-function renderList(){
- const list=$("chatlist");list.innerHTML="";
- for(const c of chats){const b=document.createElement("button");b.textContent=c.title||"New chat";b.onclick=()=>{current=c.id;$("drawer").classList.remove("open");render();renderList()};list.append(b)}
-}
-function addMessage(role,content){const c=active();if(!c)return;c.messages.push({role,content});if(role==="user"&&c.title==="New chat")c.title=content.slice(0,36);persist();render();renderList()}
-async function loadEngine(){
- if(engine)return engine;
- setStatus("Loading local AI engine…");
- const {CreateMLCEngine}=await import("https://esm.run/@mlc-ai/web-llm");
- engine=await CreateMLCEngine("Llama-3.2-1B-Instruct-q4f16_1-MLC",{initProgressCallback:p=>setStatus(p.text||"Loading local model…")});
- setStatus("Local AI ready");
- return engine;
-}
-async function reply(){
- if(busy)return;
- const text=$("input").value.trim();if(!text)return;
- if(!active())makeChat();
- $("input").value="";$("input").style.height="42px";
- addMessage("user",text);busy=true;$("send").disabled=true;
- try{
-  const ai=await loadEngine();
-  const c=active();
-  const history=c.messages.slice(-12).map(m=>({role:m.role,content:m.content}));
-  const result=await ai.chat.completions.create({messages:[{role:"system",content:SYSTEM},...history],temperature:.75,max_tokens:500});
-  addMessage("assistant",result.choices?.[0]?.message?.content?.trim()||"I couldn't produce a reply. Try again.");
-  setStatus("Local AI ready");
- }catch(e){
-  console.error(e);
-  addMessage("assistant","I couldn't start the local AI model. Check your internet connection, reload the page and try again. The first download can be large and may not work in every iPhone browser. Your conversation has been saved.");
-  setStatus("AI engine unavailable");
- }finally{busy=false;$("send").disabled=false;$("input").focus()}
-}
-$("send").onclick=reply;
-$("input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();reply()}});
-$("input").addEventListener("input",()=>{const el=$("input");el.style.height="42px";el.style.height=Math.min(el.scrollHeight,130)+"px"});
-document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{$("input").value=b.dataset.prompt;reply()});
-function newChat(){makeChat();$("drawer").classList.remove("open");$("input").focus()}
-$("newchat").onclick=newChat;$("drawernew").onclick=newChat;
-$("menu").onclick=()=>{$("drawer").classList.add("open");renderList()};
-$("closemenu").onclick=()=>$("drawer").classList.remove("open");
-$("drawer").onclick=e=>{if(e.target===$("drawer"))$("drawer").classList.remove("open")};
-$("settingsbutton").onclick=()=>{
- $("drawer").classList.remove("open");
- const msg="Settings\n\nBernard's local AI model downloads when first used. It needs internet for the initial download. Once downloaded, generation can run on-device if the browser keeps the model cached. Internet search, voice mode, and Siri Shortcuts are not implemented yet.";
- alert(msg);
-};
-if(!chats.length)makeChat();else{current=chats[0].id;render();renderList()}
+function newChat(){const c={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),title:"New chat",messages:[],created:Date.now()};chats.unshift(c);current=c.id;save();render();renderList();$("drawer").classList.remove("open")}
+function render(){const c=active();$("messages").replaceChildren();$("welcome").classList.toggle("hidden",!!(c&&c.messages.length));if(!c)return;for(const m of c.messages){const row=document.createElement("div");row.className="message "+(m.role==="user"?"user":"");const av=document.createElement("div");av.className="avatar";av.textContent=m.role==="user"?"You":"B";const bubble=document.createElement("div");bubble.className="bubble";bubble.textContent=m.content;row.append(av,bubble);$("messages").append(row)}$("main").scrollTop=$("main").scrollHeight}
+function renderList(){const list=$("chatlist");list.replaceChildren();for(const c of chats){const b=document.createElement("button");b.textContent=c.title||"New chat";b.onclick=()=>{current=c.id;render();renderList();$("drawer").classList.remove("open")};list.append(b)}}
+function add(role,content){const c=active();if(!c)return;c.messages.push({role,content});if(role==="user"&&c.title==="New chat")c.title=content.slice(0,35);save();render();renderList()}
+async function getEngine(){if(engine)return engine;setStatus("Loading small local AI…");const lib=await import("https://esm.run/@mlc-ai/web-llm");const create=lib.CreateMLCEngine;engine=await create("SmolLM2-360M-Instruct-q4f16_1-MLC",{initProgressCallback:p=>setStatus((p.text||"Loading local model").slice(0,65))});setStatus("Local AI ready");return engine}
+async function send(){if(busy)return;const text=$("input").value.trim();if(!text)return;if(!active())newChat();$("input").value="";$("input").style.height="42px";add("user",text);busy=true;$("send").disabled=true;try{
+const ai=await getEngine();const c=active();const history=c.messages.slice(-6).map(m=>({role:m.role,content:m.content}));const out=await ai.chat.completions.create({messages:[{role:"system",content:SYSTEM},...history],temperature:.65,max_tokens:160});const answer=out.choices?.[0]?.message?.content?.trim();add("assistant",answer||"Sorry, mate. I couldn't generate an answer. Try again.");setStatus("Local AI ready");
+}catch(e){console.error(e);add("assistant","Sorry, mate — the local AI couldn't start or ran out of memory. Your message is saved. Try reloading the page, then ask a shorter question. If this keeps happening, we'll switch to a lighter approach.");setStatus("Local AI unavailable");}finally{busy=false;$("send").disabled=false}}
+$("send").onclick=send;$("input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+$("input").addEventListener("input",()=>{$("input").style.height="42px";$("input").style.height=Math.min($("input").scrollHeight,100)+"px"});
+document.querySelectorAll("[data-prompt]").forEach(b=>b.onclick=()=>{$("input").value=b.dataset.prompt;send()});
+$("newchat").onclick=newChat;$("drawernew").onclick=newChat;$("menu").onclick=()=>{$("drawer").classList.add("open");renderList()};$("closemenu").onclick=()=>$("drawer").classList.remove("open");$("drawer").onclick=e=>{if(e.target===$("drawer"))$("drawer").classList.remove("open")};
+if(!chats.length)newChat();else{current=chats[0].id;render();renderList()}
 </script>
-</body>
-</html>
+</body></html>
